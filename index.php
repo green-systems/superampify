@@ -30,19 +30,41 @@
 		$sa = new Superampify($_GET);
 		switch($action){
 			case 'ping':
-				$data['status'] = 'ok';
+				// Pong ;)
 				break;
 			case 'getMusicFolders':
 				$data['response'] = $sa::getMusicFolders();
-				$data['status'] = 'ok';
 				break;
+			case 'getMusicDirectory':
+				$id = $_REQUEST['id'];
+				$data['response'] = $sa::getMusicDirectory($id);
+				break;
+			case 'getIndexes':
+				$indexes = $sa::getIndexes();
+				if ($_GET['f'] == 'xml'){
+					$response = '';
+					foreach ($indexes['indexes']['index'] as $idx){
+						$response.=$idx->toXML();
+					}
+					$indexes['indexes']['index'] = $response;
+					include_once('view/getIndexesXml.php');
+					exit();
+				} else {
+					$data['response'] = $indexes;
+				}
 			default:
 				// Do nothing..
 		}
-	}catch(Exception $e){
+		/*****
+			At this point, if there has not been
+			any exception, we can assume the status
+			is ok
+		*****/
+		$data['status'] = 'ok';
+	} catch(Exception $e) {
 		$data['status'] = 'failed';
 		$data['error'] = array(
-			'code' => '0',
+			'code' => 0,
 			'message' => $e->getMessage()
 		);
 	}
