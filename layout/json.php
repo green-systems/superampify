@@ -5,6 +5,12 @@
 		'xmlns' => 'http://subsonic.org/restapi'
 	)
 );
+if (isset($data['error'])){
+	$base['subsonic-response']['error'] = array(
+		'code' => $data['error']['code'],
+		'message' => $data['error']['message']
+	);
+}
 if (isset($data['callback']))
 	header ("Content-Type:text/javascript;charset=UTF-8");
 else

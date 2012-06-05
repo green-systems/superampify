@@ -23,15 +23,27 @@
 	require_once('lib/superampify.php');
 ?>
 <?php
-	$sa = new Superampify($_GET);
-	switch($_GET['action']){
+	$action = $_GET['action'];
+	$data = array();
+	try{
+		$sa = new Superampify($_GET);
+	}catch(Exception $e){
+		$data['status'] = 'failed';
+		$data['error'] = array(
+			'code' => '0',
+			'message' => $e->getMessage()
+		);
+		$action = "error";
+	}
+	
+	switch($action){
 		case 'ping':
 			$data = array(
 				'status' => 'ok'
 			);
 			break;
 		default:
-			echo "DEFAULT";
+			// Do nothing..
 	}
 	switch($_GET['f']){
 		case 'json':

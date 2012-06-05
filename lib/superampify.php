@@ -68,6 +68,9 @@ class Superampify{
 			,self::$user);
 		$handshake = file_get_contents($url);
 		$handsmpl = simplexml_load_string($handshake);
+		if ($handsmpl->error[0] != ''){
+			throw new Exception($handsmpl->error[0]);
+		}
 		$auth = $handsmpl->auth[0]; //Could be stored somewhere so not every request results in new handshake
 		$lastmod = $handsmpl->add[0]; //last modified for getIndexes.view
 		self::$lastmod = $lastmod;

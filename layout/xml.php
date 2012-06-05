@@ -5,5 +5,10 @@
 EOT;
 $xmloutput = simplexml_load_string($baseXML);
 $xmloutput->addAttribute('status', $data['status']);
+if (isset($data['error'])){
+	$child = $xmloutput->addChild('error');
+	$child->addAttribute('code', $data['error']['code']);
+	$child->addAttribute('message', $data['error']['message']);
+}
 header ("Content-Type: text/xml");
 echo $xmloutput->asXML(); ?>
