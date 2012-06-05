@@ -39,6 +39,10 @@
 				$id = $_REQUEST['id'];
 				$data['response'] = $sa::getMusicDirectory($id);
 				break;
+			case 'stream':
+				$id = $_REQUEST['id'];
+				$stream = $sa::getStream($id);
+				break;
 			case 'getIndexes':
 				$indexes = $sa::getIndexes();
 				if ($_GET['f'] == 'xml'){

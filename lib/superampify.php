@@ -112,29 +112,63 @@ class Superampify{
 	}
 
 	static function getMusicDirectory($id){
-		$albums = self::getAmpacheArtistsAlbums($id);
+		$sid = split('_', $id);
+
 		$musicDirectory = array();
 		$directory = array(
 			'child' => array(),
 			'name' => '',
 			'id' => $id
 		);
-		foreach ($albums as $album){
-			if ($directory['name'] == ''){
-				$directory['name'] = $album['artist'];
+
+		if ($sid[0] == 'album'){
+			$directory['id'] = $sid[1];
+			$songs = $albums = self::getAmpacheAlbumSongs($sid[1]);
+			foreach ($songs as $song){
+				if ($directory['name'] == ''){
+					$directory['name'] = $song['album'];
+				}
+				$directory['child'][] = array(
+					'id' => $song['song_id'],
+					'parent' => 'album_'.$song['album_id'],
+					'title' => $song['title'],
+					'isDir' => false,
+					'album' => $song['album'],
+					'artist' => $song['artist'],
+					'duration' => $song['time'],
+					'bitRate' => round($song['size'] / $song['time'] * 0.008),
+					'track' => $song['track'],
+					'year' => '0',
+					'genre' => '',
+					'size' => $song['size'],
+					'suffix' => '',
+					'contentType'=>'audio/mpeg',
+					'isVideo' => false,
+					'coverArt' => $song['album_id'],
+					'path' => sprintf('%s/%s/%d - %s',$song['album'],$song['artist'],$song['track'],$song['title'])
+				);
 			}
-			$directory['child'][] = array(
-				'artist' => $album['artist'],
-				'averageRating' => $album['rating'],
-				'coverArt' => $album['cover_id'],
-				'id' => $album['album_id'],
-				'isDir' => true,
-				'parent' => $album['artist_id'],
-				'title' => $album['title'],
-				'userRating' => $album['rating']
-			);
+			$musicDirectory['directory'] = $directory;
+		} else {
+			$directory['id'] = $id;
+			$albums = self::getAmpacheArtistsAlbums($id);
+			foreach ($albums as $album){
+				if ($directory['name'] == ''){
+					$directory['name'] = $album['artist'];
+				}
+				$directory['child'][] = array(
+					'artist' => $album['artist'],
+					'averageRating' => $album['rating'],
+					'coverArt' => $album['cover_id'],
+					'id' => 'album_'.$album['album_id'],
+					'isDir' => true,
+					'parent' => $album['artist_id'],
+					'title' => $album['title'],
+					'userRating' => $album['rating']
+				);
+			}
+			$musicDirectory['directory'] = $directory;
 		}
-		$musicDirectory['directory'] = $directory;
 		return $musicDirectory;
 	}
 
@@ -177,6 +211,10 @@ class Superampify{
 		}
 		$response['indexes']['lastModified'] = $lastmodstamp;
 		return $response;
+	}
+
+	static function getStream ($id){
+		$stream = self::getAmpacheStream($id);
 	}
 
 	private function generateAuth($query){
@@ -225,6 +263,16 @@ class Superampify{
 		}
 	}
 
+	private function getAmpacheStream ($id){
+		$url = self::getAmpacheActionUrl('song').'&filter='.$id;
+		$song_xml = simplexml_load_string(file_get_contents($url), null, LIBXML_NOCDATA);
+		$song_url = (string) $song_xml->song->url;
+		header('Content-type: '.$songxml->song->mime);
+		$stream = fopen($song_url, 'r');
+		echo stream_get_contents($stream, -1, -1);
+		fclose($stream);
+	}
+
 	private function getAmpacheArtistsAlbums($id){
 		$url = self::getAmpacheActionUrl('artist_albums').'&filter='.$id;
 		$response = file_get_contents($url);
@@ -249,5 +297,33 @@ class Superampify{
 			);
 		}
 		return $artists_albums;
+	}
+
+	private function getAmpacheAlbumSongs($id){
+		$url = self::getAmpacheActionUrl('album_songs').'&filter='.$id;
+		$response = file_get_contents($url);
+		$songsxml = simplexml_load_string($response, null, LIBXML_NOCDATA);
+		$album_songs = array();
+		foreach ($songsxml->children() as $node) {
+			$song_attrs = $node->attributes();
+			$album_songs[] = array(
+				'song_id' => (String) $song_attrs[0],
+				'title' => (String) $node->title,
+				'artist_id' =>  (String) $node->artist->attributes()[0],
+				'artist' => (String) $node->artist,
+				'album_id' => (String) $node->album->attributes()[0],
+				'album' => (String) $node->album,
+				'url' => (String) $node->url,
+				'time' => (int) $node->time,
+				'track' => (int) $node->track,
+				'size' => (int) $node->size,
+				'cover' => (String) $node->art,
+				'rating' => (int) $node->rating,
+				'preciserating' => (int) $node->preciserating
+			);
+		}
+		return $album_songs;
+
+		print_r($response); die;
 	}
 }
