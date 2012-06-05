@@ -11,6 +11,11 @@ if (isset($data['error'])){
 		'message' => $data['error']['message']
 	);
 }
+if (isset($data['response'])){
+	foreach ($data['response'] as $key=>$r){
+		$base['subsonic-response'][$key] = $r;
+	}
+}
 if (isset($data['callback']))
 	header ("Content-Type:text/javascript;charset=UTF-8");
 else

@@ -20,6 +20,7 @@
  *
  */
 	require_once('lib/config.php');
+	require_once('lib/utils.php');
 	require_once('lib/superampify.php');
 ?>
 <?php
@@ -27,24 +28,25 @@
 	$data = array();
 	try{
 		$sa = new Superampify($_GET);
+		switch($action){
+			case 'ping':
+				$data['status'] = 'ok';
+				break;
+			case 'getMusicFolders':
+				$data['response'] = $sa::getMusicFolders();
+				$data['status'] = 'ok';
+				break;
+			default:
+				// Do nothing..
+		}
 	}catch(Exception $e){
 		$data['status'] = 'failed';
 		$data['error'] = array(
 			'code' => '0',
 			'message' => $e->getMessage()
 		);
-		$action = "error";
 	}
-	
-	switch($action){
-		case 'ping':
-			$data = array(
-				'status' => 'ok'
-			);
-			break;
-		default:
-			// Do nothing..
-	}
+
 	switch($_GET['f']){
 		case 'json':
 			include_once('layout/json.php');

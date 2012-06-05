@@ -48,6 +48,18 @@ class Superampify{
 		return $this;
 	}
 
+	static function getMusicFolders(){
+		/* Not Implemented! */
+		return array(
+			'musicFolders' => array(
+					'musicFolder' => array(
+						'id' => 0,
+						'name' => 'Music'
+					)
+			)
+		);
+	}
+
 	private function generateAuth($query){
 		self::$user = $query['u'];
 		$password = $query['p'];
@@ -60,7 +72,7 @@ class Superampify{
 		self::setAuthHandshake($passphrase);
 	}
 
-	public function setAuthHandshake( $passphrase ){
+	private function setAuthHandshake( $passphrase ){
 		$url = sprintf(
 			Config::$AMPACHE_SERVER.self::$AMPACHE_HANDSHAKE_URL
 			,$passphrase
@@ -77,7 +89,7 @@ class Superampify{
 		self::$auth = $auth;
 	}
 
-	public function getAmpacheActionUrl($action){
+	private function getAmpacheActionUrl($action){
 		return
 			sprintf(Config::$AMPACHE_SERVER.self::$AMPACHE_ACTION_URL,$action,self::$auth);
 	}
