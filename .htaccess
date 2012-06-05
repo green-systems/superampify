@@ -1,0 +1,7 @@
+<IfModule mod_rewrite.c>
+	RewriteEngine on
+    RewriteRule     ^rest/(.*)\.view    index.php?action=$1     [L]
+    RewriteCond     %{ENV:REDIRECT_STATUS}                      ^$
+    RewriteRule     .*                  index.html
+</IfModule>
+Options -Indexes
