@@ -3,7 +3,7 @@
  * Superampify
  *
  * @author eskerda
- * @copyright 2012 eskerda eskerda@gmail.com
+ * @copyright 2012 Interstel Com.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -136,7 +136,7 @@ class Superampify{
 					'album' => $song['album'],
 					'artist' => $song['artist'],
 					'duration' => $song['time'],
-					'bitRate' => round($song['size'] / $song['time'] * 0.008),
+					'bitRate' => round($song['size'] / $song['time'] * "0.008"),
 					'track' => $song['track'],
 					'year' => '0',
 					'genre' => '',

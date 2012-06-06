@@ -3,7 +3,7 @@
  * Superampify
  *
  * @author eskerda
- * @copyright 2012 eskerda eskerda@gmail.com
+ * @copyright 2012 Interstel Com.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
