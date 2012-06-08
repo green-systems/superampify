@@ -19,8 +19,8 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-header ("Content-Type: text/xml"); ?>
-<?xml version="1.0" encoding="UTF-8"?>
+header ("Content-Type: text/xml"); 
+echo '<?xml version="1.0" encoding="UTF-8"?>'; ?>
 <subsonic-response xmlns="http://subsonic.org/restapi" version="1.7.0" status="<?php echo $data['status']; ?>">
 <?php if (isset($data['error'])): ?>
 	<error code="<?php echo $data['error']['code']; ?>" message="<?php echo $data['error']['message']; ?>"/>
