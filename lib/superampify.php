@@ -306,12 +306,14 @@ class Superampify{
 		$album_songs = array();
 		foreach ($songsxml->children() as $node) {
 			$song_attrs = $node->attributes();
+			$album_attrs = $node->album->attributes();
+			$artist_attrs = $node->artist->attributes();
 			$album_songs[] = array(
 				'song_id' => (String) $song_attrs[0],
 				'title' => (String) $node->title,
-				'artist_id' =>  (String) $node->artist->attributes()[0],
+				'artist_id' =>  (String) $artist_attrs[0],
 				'artist' => (String) $node->artist,
-				'album_id' => (String) $node->album->attributes()[0],
+				'album_id' => (String) $album_attrs[0],
 				'album' => (String) $node->album,
 				'url' => (String) $node->url,
 				'time' => (int) $node->time,
