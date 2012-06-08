@@ -30,7 +30,7 @@
 		$sa = new Superampify($_GET);
 		switch($action){
 			case 'ping':
-				// Pong ;)
+				// Pong >_<
 				break;
 			case 'getMusicFolders':
 				$data['response'] = $sa::getMusicFolders();
@@ -38,6 +38,7 @@
 			case 'getMusicDirectory':
 				$id = $_REQUEST['id'];
 				$data['response'] = $sa::getMusicDirectory($id);
+				print_r($data); die;
 				break;
 			case 'stream':
 				$id = $_REQUEST['id'];
@@ -45,17 +46,8 @@
 				break;
 			case 'getIndexes':
 				$indexes = $sa::getIndexes();
-				if ($_GET['f'] == 'xml'){
-					$response = '';
-					foreach ($indexes['indexes']['index'] as $idx){
-						$response.=$idx->toXML();
-					}
-					$indexes['indexes']['index'] = $response;
-					include_once('view/getIndexesXml.php');
-					exit();
-				} else {
-					$data['response'] = $indexes;
-				}
+				$viewFile = 'getIndexes.php';
+				$data['response'] = $indexes;
 			default:
 				// Do nothing..
 		}
