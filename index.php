@@ -38,16 +38,20 @@
 			case 'getMusicDirectory':
 				$id = $_REQUEST['id'];
 				$data['response'] = $sa::getMusicDirectory($id);
-				print_r($data); die;
+				$viewFile = 'getMusicDirectory.php';
 				break;
 			case 'stream':
 				$id = $_REQUEST['id'];
 				$stream = $sa::getStream($id);
-				break;
+				exit();
 			case 'getIndexes':
 				$indexes = $sa::getIndexes();
 				$viewFile = 'getIndexes.php';
 				$data['response'] = $indexes;
+			case 'getLicense':
+				$viewFile = 'getLicense.php';
+				// Valid :)
+				break;
 			default:
 				// Do nothing..
 		}
@@ -64,6 +68,8 @@
 			'message' => $e->getMessage()
 		);
 	}
+	if (!isset($_GET['f']))
+		$_GET['f'] = 'xml';
 
 	switch($_GET['f']){
 		case 'json':

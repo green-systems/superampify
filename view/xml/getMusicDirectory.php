@@ -19,15 +19,12 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-header ("Content-Type: text/xml"); ?>
-<?xml version="1.0" encoding="UTF-8"?>
-<subsonic-response xmlns="http://subsonic.org/restapi" version="1.7.0" status="<?php echo $data['status']; ?>">
-<?php if (isset($data['error'])): ?>
-	<error code="<?php echo $data['error']['code']; ?>" message="<?php echo $data['error']['message']; ?>"/>
-<?php endif; ?>
-<?php
-if (isset($viewFile) && file_exists(Config::$ROOT.'/view/xml/'.$viewFile)){
-	include_once(Config::$ROOT.'/view/xml/'.$viewFile);
-}
 ?>
-</subsonic-response>
+<?php if (!empty($data['response']['directory'])): 
+	$directory = $data['response']['directory']; ?>
+<directory id="<?php echo $directory['id']; ?>" name="<?php echo $directory['name']; ?>">
+<?php foreach ($directory['child'] as $album): ?>
+<child <?php foreach ($album as $key=>$value): ?><?php echo $key; ?>="<?php echo $value; ?>" <?php endforeach; ?> />
+<?php endforeach; ?>
+</directory>
+<?php endif; ?>
