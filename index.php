@@ -48,6 +48,7 @@
 				$indexes = $sa::getIndexes();
 				$viewFile = 'getIndexes.php';
 				$data['response'] = $indexes;
+				break;
 			case 'getLicense':
 				$viewFile = 'getLicense.php';
 				// Valid :)
