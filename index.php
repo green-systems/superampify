@@ -22,6 +22,7 @@
 	require_once('lib/config.php');
 	require_once('lib/utils.php');
 	require_once('lib/superampify.php');
+	require_once('lib/lastfm.php');
 ?>
 <?php
 	$action = $_REQUEST['action'];
@@ -52,6 +53,22 @@
 			case 'getLicense':
 				$viewFile = 'getLicense.php';
 				// Valid :)
+				break;
+			case 'getCoverArt':
+				$album_id = $_REQUEST['id'];
+				// Fetch album information
+				$album_info = $sa::getMusicDirectory($album_id);
+				$albumName = $album_info['directory']['name'];
+				$artistName = $album_info['directory']['artist'];
+				if (Config::$AART_HANDLER == 'lastfm'){
+					$aa_lastfm = new LastFM(Config::$LASTFM_API_KEY);
+					$info = $aa_lastfm::getAlbumInfo($artistName, $albumName);
+					$xml = simplexml_load_string($info);
+					$image_url = (string)$xml->album->image[3];
+					header( 'Location: '.$image_url );
+				} else {
+					echo "Album ART Handler is not Configured!"; die;
+				}
 				break;
 			default:
 				// Do nothing..

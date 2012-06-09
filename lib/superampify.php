@@ -128,6 +128,9 @@ class Superampify{
 				if ($directory['name'] == ''){
 					$directory['name'] = $song['album'];
 				}
+				if ($directory['artist'] == ''){
+					$directory['artist'] = $song['artist'];
+				}
 				$directory['child'][] = array(
 					'id' => $song['song_id'],
 					'parent' => 'album_'.$song['album_id'],
@@ -145,7 +148,7 @@ class Superampify{
 					'suffix' => 'mp3',
 					'contentType'=>'audio/mpeg',
 					'isVideo' => false,
-					'coverArt' => $song['album_id'],
+					'coverArt' => 'album_'.$song['album_id'],
 					'path' => sprintf('%s/%s/%d - %s.mp3',$song['artist'],$song['album'],$song['track'],$song['title'])
 				);
 			}
@@ -294,7 +297,7 @@ class Superampify{
 				'artist' => $artist,
 				'rating' => $rating,
 				'title' => $title,
-				'cover_id' => $album_id
+				'cover_id' => 'album_'.$album_id
 			);
 		}
 		return $artists_albums;
@@ -326,7 +329,5 @@ class Superampify{
 			);
 		}
 		return $album_songs;
-
-		print_r($response); die;
 	}
 }

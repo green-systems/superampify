@@ -20,11 +20,25 @@
  *
  */
 
-class Config{
-	static $AMPACHE_SERVER = "http://my.ampache.com/apps/media/";
-	static $ROOT = "/srv/http/superampify/";
-	static $AART_HANDLER = '<set here album art handler: lastfm|amazon>';
-	static $LASTFM_API_KEY = "<your last.fm public API key>";
-	static $AMAZON_API_KEY = "<your amazon public API key>";
+/** 
+	Last.fm API Documentation
+		+ http://www.last.fm/api/show/album.getInfo
+**/
+
+class LastFM{
+
+	protected static $api_key = "";
+
+	protected static $ROOT = "http://ws.audioscrobbler.com/2.0/";
+	protected static $ALBUM_INFO_URL = "/?method=album.getinfo&api_key=%s&artist=%s&album=%s";
+
+	public function __construct($public_api_key){
+		self::$api_key = $public_api_key;
+		return $this;
+	}
+	static function getAlbumInfo($artistName, $albumName){
+		$url = sprintf(self::$ROOT.self::$ALBUM_INFO_URL,self::$api_key,urlencode($artistName),urlencode($albumName));
+		$info = file_get_contents($url);
+		return $info;
+	}
 }
-?>
