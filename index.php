@@ -24,10 +24,10 @@
 	require_once('lib/superampify.php');
 ?>
 <?php
-	$action = $_GET['action'];
+	$action = $_REQUEST['action'];
 	$data = array();
 	try{
-		$sa = new Superampify($_GET);
+		$sa = new Superampify($_REQUEST);
 		switch($action){
 			case 'ping':
 				// Pong >_<
@@ -69,15 +69,15 @@
 			'message' => $e->getMessage()
 		);
 	}
-	if (!isset($_GET['f']))
-		$_GET['f'] = 'xml';
+	if (!isset($_REQUEST['f']))
+		$_REQUEST['f'] = 'xml';
 
-	switch($_GET['f']){
+	switch($_REQUEST['f']){
 		case 'json':
 			include_once('layout/json.php');
 			break;
 		case 'jsonp':
-			$data['callback'] = $_GET['callback'];
+			$data['callback'] = $_REQUEST['callback'];
 			include_once('layout/json.php');
 			break;
 		default:
