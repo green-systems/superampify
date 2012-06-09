@@ -60,12 +60,23 @@
 				$album_info = $sa::getMusicDirectory($album_id);
 				$albumName = $album_info['directory']['name'];
 				$artistName = $album_info['directory']['artist'];
+				if ($_REQUEST['size'] > '1') {
+					$size=$_REQUEST['size'];
+				}
+				else {
+					$size='500';
+				}
 				if (Config::$AART_HANDLER == 'lastfm'){
 					$aa_lastfm = new LastFM(Config::$LASTFM_API_KEY);
 					$info = $aa_lastfm::getAlbumInfo($artistName, $albumName);
 					$xml = simplexml_load_string($info);
 					$image_url = (string)$xml->album->image[3];
-					header( 'Location: '.$image_url );
+					$img = ImageCreateFromPNG($image_url);
+					list($width, $height) = getimagesize($image_url);
+					$thumb = imagecreatetruecolor($size, $size);
+					imagecopyresized($thumb, $img, 0, 0, 0, 0, $size, $size, $width, $height);
+					header('Content-type: image/png');
+					imagepng($thumb); exit();
 				} else {
 					echo "Album ART Handler is not Configured!"; die;
 				}
