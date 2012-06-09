@@ -24,7 +24,14 @@
 	$directory = $data['response']['directory']; ?>
 <directory id="<?php echo $directory['id']; ?>" name="<?php echo $directory['name']; ?>">
 <?php foreach ($directory['child'] as $album): ?>
-<child <?php foreach ($album as $key=>$value): ?><?php echo $key; ?>="<?php echo $value; ?>" <?php endforeach; ?> />
+<child <?php foreach ($album as $key=>$value): ?>
+	<?php if (is_bool($value)){
+		if ($value == true)
+			$value = "true";
+		else
+			$value = "false";
+	} ?>
+	<?php echo $key; ?>="<?php echo $value; ?>" <?php endforeach; ?> />
 <?php endforeach; ?>
 </directory>
 <?php endif; ?>

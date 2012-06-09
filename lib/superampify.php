@@ -132,7 +132,8 @@ class Superampify{
 					'id' => $song['song_id'],
 					'parent' => 'album_'.$song['album_id'],
 					'title' => $song['title'],
-					'isDir' => "false",
+					'isDir' => false,
+					'type' => 'music',
 					'album' => $song['album'],
 					'artist' => $song['artist'],
 					'duration' => $song['time'],
@@ -141,11 +142,11 @@ class Superampify{
 					'year' => '0',
 					'genre' => '',
 					'size' => $song['size'],
-					'suffix' => '',
+					'suffix' => 'mp3',
 					'contentType'=>'audio/mpeg',
-					'isVideo' => "false",
+					'isVideo' => false,
 					'coverArt' => $song['album_id'],
-					'path' => sprintf('%s/%s/%d - %s',$song['album'],$song['artist'],$song['track'],$song['title'])
+					'path' => sprintf('%s/%s/%d - %s.mp3',$song['artist'],$song['album'],$song['track'],$song['title'])
 				);
 			}
 			$musicDirectory['directory'] = $directory;
@@ -161,7 +162,7 @@ class Superampify{
 					'averageRating' => $album['rating'],
 					'coverArt' => $album['cover_id'],
 					'id' => 'album_'.$album['album_id'],
-					'isDir' => "true",
+					'isDir' => true,
 					'parent' => $album['artist_id'],
 					'title' => $album['title'],
 					'userRating' => $album['rating']
