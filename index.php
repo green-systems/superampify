@@ -35,6 +35,7 @@
 				break;
 			case 'getMusicFolders':
 				$data['response'] = $sa::getMusicFolders();
+				$viewFile = 'getMusicFolders.php';
 				break;
 			case 'getMusicDirectory':
 				$id = $_REQUEST['id'];

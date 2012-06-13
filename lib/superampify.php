@@ -222,15 +222,19 @@ class Superampify{
 	}
 
 	private function generateAuth($query){
-		self::$user = $query['u'];
-		$password = $query['p'];
-		if (substr($password,0,4)=="enc:"){
-			$password = PREG_REPLACE(
-				"'([\S,\d]{2})'e","chr(hexdec('\\1'))",substr($password,4)
-			);
-        }
-		$passphrase = hash('sha256',self::$time.hash('sha256',$password));
-		self::setAuthHandshake($passphrase);
+		if (isset ($query['handshake'])){
+			self::$auth = (string) $query['handshake'];
+		} else {
+			self::$user = $query['u'];
+			$password = $query['p'];
+			if (substr($password,0,4)=="enc:"){
+				$password = PREG_REPLACE(
+					"'([\S,\d]{2})'e","chr(hexdec('\\1'))",substr($password,4)
+				);
+	        }
+			$passphrase = hash('sha256',self::$time.hash('sha256',$password));
+			self::setAuthHandshake($passphrase);
+		}
 	}
 
 	private function setAuthHandshake( $passphrase ){
@@ -240,10 +244,7 @@ class Superampify{
 			,self::$time
 			,self::$user);
 		$handshake = file_get_contents($url);
-		$handsmpl = simplexml_load_string($handshake);
-		if ($handsmpl->error[0] != ''){
-			throw new Exception($handsmpl->error[0]);
-		}
+		$handsmpl = self::handleXMLCall($handshake);
 		$auth = $handsmpl->auth[0]; //Could be stored somewhere so not every request results in new handshake
 		$lastmod = $handsmpl->add[0]; //last modified for getIndexes.view
 		self::$lastmod = $lastmod;
@@ -255,9 +256,19 @@ class Superampify{
 			sprintf(Config::$AMPACHE_SERVER.self::$AMPACHE_ACTION_URL,$action,self::$auth);
 	}
 
+	private function handleXMLCall( $plain_xml, $param0 = null, $param1 = null){
+		$xml = simplexml_load_string($plain_xml, $param0, $param1);
+		if (isset($xml->error)){
+			throw new Exception($xml->error[0]);
+		} else {
+			return $xml;
+		}
+	}
+
 	private function getAmpacheArtists(){
 		$response = file_get_contents(self::getAmpacheActionUrl('artists'));
-		$assoc_response = Utils::simpleXMLToArray(simplexml_load_string($response));
+		$artists_xml = self::handleXMLCall($response);
+		$assoc_response = Utils::simpleXMLToArray($artists_xml);
 		if (!isset($assoc_response['artist'][0])){
 			return array(
 				'artist' => array($assoc_response['artist'])
@@ -269,7 +280,7 @@ class Superampify{
 
 	private function getAmpacheStream ($id){
 		$url = self::getAmpacheActionUrl('song').'&filter='.$id;
-		$song_xml = simplexml_load_string(file_get_contents($url), null, LIBXML_NOCDATA);
+		$song_xml = self::handleXMLCall(file_get_contents($url), null, LIBXML_NOCDATA);
 		$song_url = (string) $song_xml->song->url;
 		header('Content-type: audio/mpeg');
 		$stream = fopen($song_url, 'r');
@@ -281,7 +292,7 @@ class Superampify{
 		$url = self::getAmpacheActionUrl('artist_albums').'&filter='.$id;
 		$response = file_get_contents($url);
 		$artists_albums = array();
-		$xml_response = simplexml_load_string($response);
+		$xml_response = self::handleXMLCall($response);
 		foreach ($xml_response->children() as $node){
 			$album_attributes = $node->attributes();
 			$artist_attributes = $node->artist->attributes();
@@ -306,7 +317,7 @@ class Superampify{
 	private function getAmpacheAlbumSongs($id){
 		$url = self::getAmpacheActionUrl('album_songs').'&filter='.$id;
 		$response = file_get_contents($url);
-		$songsxml = simplexml_load_string($response, null, LIBXML_NOCDATA);
+		$songsxml = self::handleXMLCall($response, null, LIBXML_NOCDATA);
 		$album_songs = array();
 		foreach ($songsxml->children() as $node) {
 			$song_attrs = $node->attributes();
