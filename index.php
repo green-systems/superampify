@@ -69,8 +69,9 @@
 				}
 				if (Config::$AART_HANDLER == 'lastfm'){
 					$aa_lastfm = new LastFM(Config::$LASTFM_API_KEY);
-					$info = $aa_lastfm::getAlbumInfo($artistName, $albumName);
-					if (empty($info)){
+					try{
+						$info = $aa_lastfm::getAlbumInfo($artistName, $albumName);
+					} catch (Exception $e){
 						header("HTTP/1.0 404 Not Found");
   						exit();
 					}

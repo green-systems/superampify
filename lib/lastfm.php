@@ -39,6 +39,10 @@ class LastFM{
 	static function getAlbumInfo($artistName, $albumName){
 		$url = sprintf(self::$ROOT.self::$ALBUM_INFO_URL,self::$api_key,urlencode($artistName),urlencode($albumName));
 		$info = file_get_contents($url);
+		if ($info == ""){
+			throw new Exception("not found");
+		}
+		$xml = simplexml_load_string($info);
 		return $info;
 	}
 }
