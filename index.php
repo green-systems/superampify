@@ -62,21 +62,24 @@
 				$albumName = $album_info['directory']['name'];
 				$artistName = $album_info['directory']['artist'];
 				if ($_REQUEST['size'] > '1') {
-					$size=$_REQUEST['size'];
+					if ($_REQUEST['size'] < '500')
+						$size=$_REQUEST['size'];
+					else
+						$size = '500';
 				}
 				else {
-					$size='500';
+					$size='200';
 				}
 				if (Config::$AART_HANDLER == 'lastfm'){
 					$aa_lastfm = new LastFM(Config::$LASTFM_API_KEY);
 					try{
 						$info = $aa_lastfm::getAlbumInfo($artistName, $albumName);
+						$xml = simplexml_load_string($info);
+						$image_url = (string)$xml->album->image[3];
 					} catch (Exception $e){
 						header("HTTP/1.0 404 Not Found");
-  						exit();
+						$image_url = Config::$ROOT.'/lib/defaultcover.png';
 					}
-					$xml = simplexml_load_string($info);
-					$image_url = (string)$xml->album->image[3];
 					$image_meta = getimagesize($image_url);
 					switch($image_meta['mime']){
 						case 'image/jpeg':
