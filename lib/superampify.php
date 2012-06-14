@@ -229,7 +229,7 @@ class Superampify{
 			if (strlen($q) < 4)
 				return array('searchResult2'=>'');
 		}
-		
+		$q = trim(htmlentities($q));
 
 		if (!isset($query['artistCount']))
 			$artistCount = 10;
@@ -365,6 +365,7 @@ class Superampify{
 				'name' => (string) $node->name
 			);
 		}
+		
 		return $artists;
 	}
 
