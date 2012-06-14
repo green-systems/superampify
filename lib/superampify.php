@@ -42,9 +42,7 @@ class Index{
 	}
 
 	public function toXML(){
-		$response =	<<<EOT
-<index name="{$this->name}">
-EOT;
+		$response =	"<index name=\"".htmlentities($this->name)."\">";
 		foreach ($this->artist as $artist){
 			$response = $response.$artist->toXML();
 		}
@@ -67,9 +65,7 @@ class Artist{
 	}
 
 	public function toXML(){
-		$xml = <<<EOT
-<artist name="{$this->name}" id="{$this->id}"/>
-EOT;
+		$xml = "<artist name=\"".htmlentities($this->name)."\" id=\"".$this->id."\"/>";
 		return $xml;
 	}
 
@@ -295,10 +291,10 @@ class Superampify{
 			);
 		}
 		
-		foreach ($r as $key=>$part){
+		/*foreach ($r as $key=>$part){
 			if (sizeof($r[$key]) == 1)
 				$r[$key] = $part[0];
-		}
+		}*/
 		if (sizeof($r) > 0)
 			return array('searchResult2'=>$r);
 		else

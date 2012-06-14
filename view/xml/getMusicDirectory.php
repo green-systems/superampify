@@ -22,7 +22,7 @@
 ?>
 <?php if (!empty($data['response']['directory'])): 
 	$directory = $data['response']['directory']; ?>
-<directory id="<?php echo $directory['id']; ?>" name="<?php echo $directory['name']; ?>">
+<directory id="<?php echo $directory['id']; ?>" name="<?php echo htmlentities($directory['name']); ?>">
 <?php foreach ($directory['child'] as $album): ?>
 <child <?php foreach ($album as $key=>$value): ?>
 	<?php if (is_bool($value)){
@@ -30,7 +30,9 @@
 			$value = "true";
 		else
 			$value = "false";
-	} ?>
+	}else{
+			$value = htmlentities($value);
+		} ?>
 	<?php echo $key; ?>="<?php echo $value; ?>" <?php endforeach; ?> />
 <?php endforeach; ?>
 </directory>
