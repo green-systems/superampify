@@ -34,20 +34,20 @@
 				// Pong >_<
 				break;
 			case 'getMusicFolders':
-				$data['response'] = $sa::getMusicFolders();
+				$data['response'] = $sa->getMusicFolders();
 				$viewFile = 'getMusicFolders.php';
 				break;
 			case 'getMusicDirectory':
 				$id = $_REQUEST['id'];
-				$data['response'] = $sa::getMusicDirectory($id);
+				$data['response'] = $sa->getMusicDirectory($id);
 				$viewFile = 'getMusicDirectory.php';
 				break;
 			case 'stream':
 				$id = $_REQUEST['id'];
-				$stream = $sa::getStream($id);
+				$stream = $sa->getStream($id);
 				exit();
 			case 'getIndexes':
-				$indexes = $sa::getIndexes();
+				$indexes = $sa->getIndexes();
 				$viewFile = 'getIndexes.php';
 				$data['response'] = $indexes;
 				break;
@@ -55,10 +55,14 @@
 				$viewFile = 'getLicense.php';
 				// Valid :)
 				break;
+			case 'search2':
+				$data['response'] = $sa->search($_REQUEST);
+				$viewFile = 'search2.php';
+				break;
 			case 'getCoverArt':
 				$album_id = $_REQUEST['id'];
 				// Fetch album information
-				$album_info = $sa::getMusicDirectory($album_id);
+				$album_info = $sa->getMusicDirectory($album_id);
 				$albumName = $album_info['directory']['name'];
 				$artistName = $album_info['directory']['artist'];
 				if ($_REQUEST['size'] > '1') {

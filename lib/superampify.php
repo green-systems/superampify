@@ -82,24 +82,24 @@ class Superampify{
 	
 	//my.subampapi.com/rest/getIndexes.view?u=admin&p=enc:61646d696e&v=1.6.0&c=MiniSub&f=jsonp
 	
-	protected static $user = "";
-	protected static $time = "";
-	protected static $auth = "";
-	protected static $version = "";
-	protected static $client = "";
-	protected static $format = "";
-	protected static $lastmod = "";
+	var $user = "";
+	var $time = "";
+	var $auth = "";
+	var $version = "";
+	var $client = "";
+	var $format = "";
+	var $lastmod = "";
 
 	protected static $AMPACHE_HANDSHAKE_URL = 'server/xml.server.php?action=handshake&auth=%s&timestamp=%s&version=350001&user=%s';
 	protected static $AMPACHE_ACTION_URL = 'server/xml.server.php?action=%s&auth=%s';
 
 	public function __construct($query){
-		self::$time = time();
-		self::generateAuth($query);
+		$this->time = time();
+		$this->generateAuth($query);
 		return $this;
 	}
 
-	static function getMusicFolders(){
+	public function getMusicFolders(){
 		/* Not Implemented! */
 		return array(
 			'musicFolders' => array(
@@ -111,7 +111,7 @@ class Superampify{
 		);
 	}
 
-	static function getMusicDirectory($id){
+	public function getMusicDirectory($id){
 		$sid = split('_', $id);
 
 		$musicDirectory = array();
@@ -123,7 +123,7 @@ class Superampify{
 
 		if ($sid[0] == 'album'){
 			$directory['id'] = $sid[1];
-			$songs = $albums = self::getAmpacheAlbumSongs($sid[1]);
+			$songs = $albums = $this->getAmpacheAlbumSongs($sid[1]);
 			foreach ($songs as $song){
 				if ($directory['name'] == ''){
 					$directory['name'] = $song['album'];
@@ -155,7 +155,7 @@ class Superampify{
 			$musicDirectory['directory'] = $directory;
 		} else {
 			$directory['id'] = $id;
-			$albums = self::getAmpacheArtistsAlbums($id);
+			$albums = $this->getAmpacheArtistsAlbums($id);
 			foreach ($albums as $album){
 				if ($directory['name'] == ''){
 					$directory['name'] = $album['artist'];
@@ -176,10 +176,10 @@ class Superampify{
 		return $musicDirectory;
 	}
 
-	static function getIndexes(){
+	public function getIndexes(){
 		//Convert Time to Timestamp
 		$delim = array('-', 'T', ':', '+');
-		$lastmoddel = str_replace($delim, ',', self::$lastmod); //Extra step to create a uniform value
+		$lastmoddel = str_replace($delim, ',', $this->lastmod); //Extra step to create a uniform value
 		$lastmodarr = explode(',', $lastmoddel);
 		$lastmodstamp = gmmktime($lastmodarr[3]-$lastmodarr[6],$lastmodarr[4]-$lastmodarr[7],$lastmodarr[5],$lastmodarr[1],$lastmodarr[2],$lastmodarr[0]);
 		//Get Artists if changed or ifModifiedSince is not set
@@ -190,9 +190,9 @@ class Superampify{
 			'indexes' => array()
 		);
 
-		$artists = self::getAmpacheArtists();
+		$artists = $this->getAmpacheArtists();
 		$letter_artists = array();
-		foreach ($artists['artist'] as $artist){
+		foreach ($artists as $artist){
 			$name = $artist['name'];
 			if (preg_match('/^[a-zA-Z]*$/',$name[0]) > 0){
 				// starts with allowed char
@@ -217,46 +217,130 @@ class Superampify{
 		return $response;
 	}
 
-	static function getStream ($id){
-		$stream = self::getAmpacheStream($id);
+	function getStream ($id){
+		$stream = $this->getAmpacheStream($id);
+	}
+
+	function search ($query){
+		
+		if (!isset($query['query']))
+			$q = '';
+		else
+			$q = preg_replace('/[^a-z0-9\ ]/', '', trim($query['query']));
+		
+
+		if (!isset($query['artistCount']))
+			$artistCount = 10;
+		else
+			$artistCount = $query['artistCount'];
+
+		if (!isset($query['albumCount']))
+			$albumCount = 20;
+		else
+			$albumCount = $query['albumCount'];
+
+		if (!isset($query['songCount']))
+			$songCount = 25;
+		else
+			$songCount = $query['songCount'];
+
+		$artists = $this->getAmpacheArtists($q);
+		$albums = $this->getAmpacheAlbums($q);
+		$songs = $this->getAmpacheSongs($q);
+
+		$r = array('artist' => array(), 'album'=>array(), 'song' => array());
+		
+		foreach ($artists as $artist){
+
+			$r['artist'][] = $artist;
+			$albums = array_merge($albums, $this->getAmpacheArtistsAlbums($artist['id']));
+		}
+
+		foreach ($albums as $album){
+
+			$r['album'][] = array(
+				'artist' => $album['artist'],
+				'averageRating' => $album['rating'],
+				'coverArt' => $album['cover_id'],
+				'id' => 'album_'.$album['album_id'],
+				'isDir' => true,
+				'parent' => $album['artist_id'],
+				'title' => $album['title'],
+				'userRating' => $album['rating']
+			);
+			$songs = array_merge($songs, $this->getAmpacheAlbumSongs($album['album_id']));
+		}
+
+		foreach ($songs as $song){
+
+			$r['song'][] = array(
+				'id' => $song['song_id'],
+				'parent' => 'album_'.$song['album_id'],
+				'title' => $song['title'],
+				'isDir' => false,
+				'type' => 'music',
+				'album' => $song['album'],
+				'artist' => $song['artist'],
+				'duration' => $song['time'],
+				'bitRate' => round($song['size'] / $song['time'] * "0.008"),
+				'track' => $song['track'],
+				'year' => '0',
+				'genre' => '',
+				'size' => $song['size'],
+				'suffix' => 'mp3',
+				'contentType'=>'audio/mpeg',
+				'isVideo' => false,
+				'coverArt' => 'album_'.$song['album_id'],
+				'path' => sprintf('%s/%s/%d - %s.mp3',$song['artist'],$song['album'],$song['track'],$song['title'])
+			);
+		}
+		
+		foreach ($r as $key=>$part){
+			if (sizeof($r[$key]) == 1)
+				$r[$key] = $part[0];
+		}
+		if (sizeof($r) > 0)
+			return array('searchResult2'=>$r);
+		else
+			return array('searchResult2'=>'');
 	}
 
 	private function generateAuth($query){
 		if (isset ($query['handshake'])){
-			self::$auth = (string) $query['handshake'];
+			$this->auth = (string) $query['handshake'];
 		} else {
-			self::$user = $query['u'];
+			$this->user = $query['u'];
 			$password = $query['p'];
 			if (substr($password,0,4)=="enc:"){
 				$password = PREG_REPLACE(
 					"'([\S,\d]{2})'e","chr(hexdec('\\1'))",substr($password,4)
 				);
 	        }
-			$passphrase = hash('sha256',self::$time.hash('sha256',$password));
-			self::setAuthHandshake($passphrase);
+			$passphrase = hash('sha256',$this->time.hash('sha256',$password));
+			$this->setAuthHandshake($passphrase);
 		}
 	}
 
 	private function setAuthHandshake( $passphrase ){
 		$url = sprintf(
-			Config::$AMPACHE_SERVER.self::$AMPACHE_HANDSHAKE_URL
+			Config::$AMPACHE_SERVER.Superampify::$AMPACHE_HANDSHAKE_URL
 			,$passphrase
-			,self::$time
-			,self::$user);
+			,$this->time
+			,$this->user);
 		$handshake = file_get_contents($url);
-		$handsmpl = self::handleXMLCall($handshake);
+		$handsmpl = Superampify::handleXMLCall($handshake);
 		$auth = $handsmpl->auth[0]; //Could be stored somewhere so not every request results in new handshake
 		$lastmod = $handsmpl->add[0]; //last modified for getIndexes.view
-		self::$lastmod = $lastmod;
-		self::$auth = (string) $auth;
+		$this->lastmod = $lastmod;
+		$this->auth = (string) $auth;
 	}
 
 	private function getAmpacheActionUrl($action){
 		return
-			sprintf(Config::$AMPACHE_SERVER.self::$AMPACHE_ACTION_URL,$action,self::$auth);
+			sprintf(Config::$AMPACHE_SERVER.Superampify::$AMPACHE_ACTION_URL,$action,$this->auth);
 	}
 
-	private function handleXMLCall( $plain_xml, $param0 = null, $param1 = null){
+	private static function handleXMLCall( $plain_xml, $param0 = null, $param1 = null){
 		$xml = simplexml_load_string($plain_xml, $param0, $param1);
 		if (isset($xml->error)){
 			throw new Exception($xml->error[0]);
@@ -265,22 +349,82 @@ class Superampify{
 		}
 	}
 
-	private function getAmpacheArtists(){
-		$response = file_get_contents(self::getAmpacheActionUrl('artists'));
-		$artists_xml = self::handleXMLCall($response);
-		$assoc_response = Utils::simpleXMLToArray($artists_xml);
-		if (!isset($assoc_response['artist'][0])){
-			return array(
-				'artist' => array($assoc_response['artist'])
+	private function getAmpacheArtists($filter = null){
+		$url = $this->getAmpacheActionUrl('artists');
+		if (isset($filter))
+			$url.='&filter='.$filter;
+		$response = file_get_contents($url);
+		$artists_xml = Superampify::handleXMLCall($response);
+		$artists = array();
+		foreach ($artists_xml->children() as $node){
+			$attributes = $node->attributes();
+			$artists[] = array(
+				'id' => (int) $attributes[0],
+				'name' => (string) $node->name
 			);
-		} else {
-			return $assoc_response;	
 		}
+		return $artists;
+	}
+
+	private function getAmpacheAlbums($filter = null){
+		$url = $this->getAmpacheActionUrl('albums');
+		if (isset($filter))
+			$url.='&filter='.$filter;
+		$response = file_get_contents($url);
+		$albums = array();
+		$xml_response = Superampify::handleXMLCall($response);
+		foreach ($xml_response->children() as $node){
+			$album_attributes = $node->attributes();
+			$artist_attributes = $node->artist->attributes();
+			
+			$artist_id = (int) $artist_attributes['id'];
+			$album_id = (int) $album_attributes['id'];
+			$artist = (string) $node->artist;
+			$rating = (int) $node->rating;
+			$title = (string) $node->name;
+			$albums[] = array(
+				'artist_id' => $artist_id,
+				'album_id' => $album_id,
+				'artist' => $artist,
+				'rating' => $rating,
+				'title' => $title,
+				'cover_id' => 'album_'.$album_id
+			);
+		}
+		return $albums;
+	}
+
+	private function getAmpacheSongs($query){
+		$url = $this->getAmpacheActionUrl('songs').'&filter='.$query;
+		$response = file_get_contents($url);
+		$songsxml = Superampify::handleXMLCall($response, null, LIBXML_NOCDATA);
+		$songs = array();
+		foreach ($songsxml->children() as $node) {
+			$song_attrs = $node->attributes();
+			$album_attrs = $node->album->attributes();
+			$artist_attrs = $node->artist->attributes();
+			$songs[] = array(
+				'song_id' => (String) $song_attrs[0],
+				'title' => (String) $node->title,
+				'artist_id' =>  (String) $artist_attrs[0],
+				'artist' => (String) $node->artist,
+				'album_id' => (String) $album_attrs[0],
+				'album' => (String) $node->album,
+				'url' => (String) $node->url,
+				'time' => (int) $node->time,
+				'track' => (int) $node->track,
+				'size' => (int) $node->size,
+				'cover' => (String) $node->art,
+				'rating' => (int) $node->rating,
+				'preciserating' => (int) $node->preciserating
+			);
+		}
+		return $songs;
 	}
 
 	private function getAmpacheStream ($id){
-		$url = self::getAmpacheActionUrl('song').'&filter='.$id;
-		$song_xml = self::handleXMLCall(file_get_contents($url), null, LIBXML_NOCDATA);
+		$url = $this->getAmpacheActionUrl('song').'&filter='.$id;
+		$song_xml = Superampify::handleXMLCall(file_get_contents($url), null, LIBXML_NOCDATA);
 		$song_url = (string) $song_xml->song->url;
 		header('Content-type: audio/mpeg');
 		$stream = fopen($song_url, 'r');
@@ -289,10 +433,10 @@ class Superampify{
 	}
 
 	private function getAmpacheArtistsAlbums($id){
-		$url = self::getAmpacheActionUrl('artist_albums').'&filter='.$id;
+		$url = $this->getAmpacheActionUrl('artist_albums').'&filter='.$id;
 		$response = file_get_contents($url);
 		$artists_albums = array();
-		$xml_response = self::handleXMLCall($response);
+		$xml_response = Superampify::handleXMLCall($response);
 		foreach ($xml_response->children() as $node){
 			$album_attributes = $node->attributes();
 			$artist_attributes = $node->artist->attributes();
@@ -315,9 +459,9 @@ class Superampify{
 	}
 
 	private function getAmpacheAlbumSongs($id){
-		$url = self::getAmpacheActionUrl('album_songs').'&filter='.$id;
+		$url = $this->getAmpacheActionUrl('album_songs').'&filter='.$id;
 		$response = file_get_contents($url);
-		$songsxml = self::handleXMLCall($response, null, LIBXML_NOCDATA);
+		$songsxml = Superampify::handleXMLCall($response, null, LIBXML_NOCDATA);
 		$album_songs = array();
 		foreach ($songsxml->children() as $node) {
 			$song_attrs = $node->attributes();
