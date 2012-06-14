@@ -221,8 +221,14 @@ class Superampify{
 		
 		if (!isset($query['query']))
 			$q = '';
-		else
-			$q = preg_replace('/[^a-z0-9\ ]/', '', trim($query['query']));
+		else{
+			/* Only allow valid characters */
+			$q = preg_replace('/[^a-z0-9\ ]/', '', $query['query']);
+			/* Remove one letter words */
+			$q = preg_replace('/\s+\S{1,2}(?!\S)|(?<!\S)\S{1,2}\s+/', '', $q);
+			if (strlen($q) < 4)
+				return array('searchResult2'=>'');
+		}
 		
 
 		if (!isset($query['artistCount']))
