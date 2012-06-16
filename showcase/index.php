@@ -37,7 +37,6 @@ server/xml.server.php?action=handshake&auth=%s&timestamp=%s&version=350001&user=
 	function getAuthHandshake($user, $password) {
 		$time = time();
 		$passphrase = hash('sha256',$time.hash('sha256',$password));
-		$handshake = getAuthHandshake($passphrase, $time, $user);
 		$url = sprintf(
 			Config::$AMPACHE_SERVER.Superampify::$AMPACHE_HANDSHAKE_URL
 			,$passphrase
