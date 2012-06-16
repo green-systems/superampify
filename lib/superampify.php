@@ -86,7 +86,7 @@ class Superampify{
 	var $format = "";
 	var $lastmod = "";
 
-	protected static $AMPACHE_HANDSHAKE_URL = 'server/xml.server.php?action=handshake&auth=%s&timestamp=%s&version=350001&user=%s';
+	public static $AMPACHE_HANDSHAKE_URL = 'server/xml.server.php?action=handshake&auth=%s&timestamp=%s&version=350001&user=%s';
 	protected static $AMPACHE_ACTION_URL = 'server/xml.server.php?action=%s&auth=%s';
 
 	public function __construct($query){
