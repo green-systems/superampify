@@ -1,0 +1,3 @@
+[submodule "subtunes"]
+	path = subtunes
+	url = git@github.com/interstel/subtunes.git
