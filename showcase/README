@@ -1,0 +1,20 @@
+This is a function that generates a handshake that works with
+Ampache, and OwnCloud.
+
+This handshake serves as a way to keep the session going
+(instead of passing the user and the password around on each
+call)
+
+Notice how it takes the user and the password, in plaintext.
+
+So, it can only be generated during log-in time (the only time
+the user sends the password in clear text to the server)
+
+This handshake gets read later in subtunes.
+
+So, the idea here is:
+	- Generate this handshake on log-in time in runners-id.
+	- Save it on the session, whatever the way runners-id handles sessions.
+	- Read it on subtunes, when it's opened.
+
+Basically, this code is just a showcase that this works.
