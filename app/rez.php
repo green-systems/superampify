@@ -19,10 +19,10 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-	require_once('lib/config.php');
-	require_once('lib/utils.php');
-	require_once('lib/superampify.php');
-	require_once('lib/lastfm.php');
+	require_once('../lib/config.php');
+	require_once('../lib/utils.php');
+	require_once('../lib/superampify.php');
+	require_once('../lib/lastfm.php');
 ?>
 <?php
 	$action = $_REQUEST['action'];
@@ -82,7 +82,7 @@
 						$image_url = (string)$xml->album->image[3];
 					} catch (Exception $e){
 						header("HTTP/1.0 404 Not Found");
-						$image_url = Config::$ROOT.'/lib/defaultcover.png';
+						$image_url = Config::$ROOT.'../data/defaultcover.png';
 					}
 					$image_meta = getimagesize($image_url);
 					switch($image_meta['mime']){

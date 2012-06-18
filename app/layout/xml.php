@@ -26,8 +26,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'; ?>
 	<error code="<?php echo $data['error']['code']; ?>" message="<?php echo $data['error']['message']; ?>"/>
 <?php endif; ?>
 <?php
-if (isset($viewFile) && file_exists(Config::$ROOT.'/view/xml/'.$viewFile)){
-	include_once(Config::$ROOT.'/view/xml/'.$viewFile);
+if (isset($viewFile) && file_exists(Config::$ROOT.'/app/view/xml/'.$viewFile)){
+	include_once(Config::$ROOT.'/app/view/xml/'.$viewFile);
 }
 ?>
 </subsonic-response>
