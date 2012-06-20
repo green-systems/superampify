@@ -307,6 +307,35 @@ class Superampify{
 			return array('searchResult2'=>'');
 	}
 
+	function getAlbumList($type = null, $size = 10, $offset = 0){
+		function compareAlbums ($foo, $bar){
+			return strcmp($foo['album_id'], $bar['album_id']);
+		}
+		if ($type == null)
+			throw new Exception("Required string parameter 'type' is not present");
+		$albums = $this->getAmpacheAlbums();
+		if ($type == "newest"){
+			usort($albums, "compareAlbums");
+			$albums = array_slice(array_reverse($albums), $offset, $size);
+		} else if ($type == "random"){
+			shuffle($albums);
+		}
+		$r = array('album' => array());
+		foreach ($albums as $album){
+			$r['album'][] = array(
+				'artist' => $album['artist'],
+				'averageRating' => $album['rating'],
+				'coverArt' => $album['cover_id'],
+				'id' => 'album_'.$album['album_id'],
+				'isDir' => true,
+				'parent' => $album['artist_id'],
+				'title' => $album['title'],
+				'userRating' => $album['rating']
+			);
+		}
+		return array('albumList'=>$r);
+	}
+
 	private function generateAuth($query){
 		if (isset ($query['handshake'])){
 			$this->auth = (string) $query['handshake'];
@@ -429,7 +458,9 @@ class Superampify{
 		$url = $this->getAmpacheActionUrl('song').'&filter='.$id;
 		$song_xml = Superampify::handleXMLCall(file_get_contents($url), null, LIBXML_NOCDATA);
 		$song_url = (string) $song_xml->song->url;
+		//$size = (int) $song_xml->song->size;
 		header('Content-type: audio/mpeg');
+		//header("Content-length: $size");
 		$stream = fopen($song_url, 'r');
 		echo stream_get_contents($stream, -1, -1);
 		fclose($stream);

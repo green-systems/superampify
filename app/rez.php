@@ -111,6 +111,24 @@
 					echo "Album ART Handler is not Configured!"; die;
 				}
 				break;
+			case 'getAlbumList':
+				$viewFile = 'getAlbumList.php';
+				if (isset($_REQUEST['type']))
+					$type = $_REQUEST['type'];
+				else
+					$type = null;
+
+				if (isset($_REQUEST['size']))
+					$type = $_REQUEST['size'];
+				else
+					$size = null;
+
+				if (isset($_REQUEST['offset']))
+					$offset = $_REQUEST['offset'];
+				else
+					$offset = null;
+				$data['response'] = $sa->getAlbumList($type, $size, $offset);
+				break;
 			default:
 				// Do nothing..
 		}
