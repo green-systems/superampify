@@ -336,6 +336,39 @@ class Superampify{
 		return array('albumList'=>$r);
 	}
 
+	function getRandomSongs($size = 10, $genre = null, $fromYear = null, $toYear = null, $musicFolderId = null){
+		if (isset($genre) || isset($fromYear) || isset ($toYear) || isset($musicFolderId)){
+			throw new Exception("genre, fromYear, toYear, musicFolderId queries not implemented");
+		}
+		$songs = $this->getAmpacheSongs();
+		shuffle($songs);
+		$songs = array_slice($songs, 0, $size);
+		$r = array('song' => array());
+		foreach ($songs as $song){
+			$r['song'][] = array(
+				'id' => $song['song_id'],
+				'parent' => 'album_'.$song['album_id'],
+				'title' => $song['title'],
+				'isDir' => false,
+				'type' => 'music',
+				'album' => $song['album'],
+				'artist' => $song['artist'],
+				'duration' => $song['time'],
+				'bitRate' => round($song['size'] / $song['time'] * "0.008"),
+				'track' => $song['track'],
+				'year' => '0',
+				'genre' => '',
+				'size' => $song['size'],
+				'suffix' => 'mp3',
+				'contentType'=>'audio/mpeg',
+				'isVideo' => false,
+				'coverArt' => 'album_'.$song['album_id'],
+				'path' => sprintf('%s/%s/%d - %s.mp3',$song['artist'],$song['album'],$song['track'],$song['title'])
+			);
+		}
+		return array('randomSongs' => $r);
+	}
+
 	private function generateAuth($query){
 		if (isset ($query['handshake'])){
 			$this->auth = (string) $query['handshake'];

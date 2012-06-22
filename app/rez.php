@@ -129,6 +129,15 @@
 					$offset = null;
 				$data['response'] = $sa->getAlbumList($type, $size, $offset);
 				break;
+			case 'getRandomSongs':
+				$size = (!isset($_REQUEST['size'])) ? null : $_REQUEST['size'];
+				$genre = (!isset($_REQUEST['genre'])) ? null : $_REQUEST['genre'];
+				$fromYear = (!isset($_REQUEST['fromYear'])) ? null : $_REQUEST['fromYear'];
+				$toYear = (!isset($_REQUEST['toYear'])) ? null : $_REQUEST['toYear'];
+				$musicFolderId = (!isset($_REQUEST['musicFolderId'])) ? null : $_REQUEST['musicFolderId'];				
+				$data['response'] = $sa->getRandomSongs($size, $genre, $fromYear, $toYear, $musicFolderId);
+				$viewFile = 'getRandomSongs.php';
+				break;
 			default:
 				// Do nothing..
 		}
