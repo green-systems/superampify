@@ -101,7 +101,7 @@ class Superampify{
 			'musicFolders' => array(
 					'musicFolder' => array(
 						'id' => 0,
-						'name' => 'Music'
+						'name' => $this->user,
 					)
 			)
 		);
